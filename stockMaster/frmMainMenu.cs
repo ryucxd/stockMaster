@@ -470,7 +470,7 @@ namespace stockMaster
         {
             //to keep this cleaning im thinking private void for each type rather than a huge if - should be better readability for the future unlike the last one
             DialogResult result = MessageBox.Show("Are you sure you want to upload this stock take?","Stock Upload",MessageBoxButtons.YesNo);
-            if (result == DialogResult.Yes)
+            if (result == DialogResult.Yes) //all references to dbo.stock in this upload segment is prefixed with [order_database_booking_in_test] - the usp for adding location is commented out (worked in the last stock take program)
             {
                 if (stock_take_type == 1)
                     full_stock_take();
