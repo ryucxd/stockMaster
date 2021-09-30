@@ -529,7 +529,7 @@ namespace stockMaster
                         using (SqlCommand cmd = new SqlCommand(sql, conn))
                             cmd.ExecuteNonQuery();
                         prog.Value++;
-                    }
+                    }//
                     prog.Value = 0;
                     for (int i = 0; i < dataGridView1.Rows.Count; i++) //go through each row and update location ? 
                     {
