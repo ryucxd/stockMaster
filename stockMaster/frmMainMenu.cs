@@ -343,7 +343,7 @@ namespace stockMaster
                     lblStockCode2.Visible = true;
                 }
 
-                prog.Value = prog.Maximum - 1;
+                prog.Value = prog.Maximum;
                 MessageBox.Show(message);
             }
             else
@@ -352,6 +352,7 @@ namespace stockMaster
                 {
                     lblBypass1.Visible = true;
                     lblBypass2.Visible = true;
+                    prog.Value = prog.Maximum;
                     MessageBox.Show(isBypassed.ToString() + " rows bypassed.");
                 }
                 btnBypass.Enabled = false;
@@ -414,14 +415,19 @@ namespace stockMaster
                 btnCheckCSV.PerformClick();
             }
             else
+            {
+                prog.Value = prog.Maximum;
                 MessageBox.Show("Aborted!", "Missing/Wrong Password", MessageBoxButtons.OK);
+            }
             prog.Value = 0;
         }
 
         private void btnSnapShot_Click(object sender, EventArgs e)
         {
             //loop through each of the rows and upload to 
-
+            btnSnapShot.Enabled = false;
+            btnCheckCSV.Enabled = false;
+            btnAttachCSV.Enabled = false;
             prog.Value = 0;
             prog.Maximum = dataGridView1.Rows.Count;
             using (SqlConnection conn = new SqlConnection(CONNECT.ConnectionString))
@@ -442,7 +448,7 @@ namespace stockMaster
                     prog.Value++;
                 }
                 //after upload of stock we need to send an email of it.
-                prog.Value = dataGridView1.Rows.Count - 1;
+                prog.Value = prog.Maximum;
                 //--usp_stock_master_snapshot_email
                 using (var command = new SqlCommand("usp_stock_master_snapshot_email ", conn)
                 {
@@ -473,7 +479,9 @@ namespace stockMaster
                 if (stock_take_type == 3)
                     incremental_stock_take();
                 btnUpload.Enabled = false;
+                prog.Value = prog.Maximum;
                 MessageBox.Show("Upload complete!", "Stock Upload", MessageBoxButtons.OK);
+                prog.Value = 0;
             }
         }
 
@@ -529,7 +537,7 @@ namespace stockMaster
                         using (SqlCommand cmd = new SqlCommand(sql, conn))
                             cmd.ExecuteNonQuery();
                         prog.Value++;
-                    }//
+                    }
                     prog.Value = 0;
                     for (int i = 0; i < dataGridView1.Rows.Count; i++) //go through each row and update location ? 
                     {
