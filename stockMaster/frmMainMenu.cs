@@ -463,7 +463,7 @@ namespace stockMaster
         private void btnUpload_Click(object sender, EventArgs e)
         {
             //to keep this cleaning im thinking private void for each type rather than a huge if - should be better readability for the future unlike the last one
-            DialogResult result = MessageBox.Show("Are you sure you want to upload this stock take?");
+            DialogResult result = MessageBox.Show("Are you sure you want to upload this stock take?","Stock Upload",MessageBoxButtons.YesNo);
             if (result == DialogResult.Yes)
             {
                 if (stock_take_type == 1)
@@ -472,6 +472,8 @@ namespace stockMaster
                     partial_stock_take();
                 if (stock_take_type == 3)
                     incremental_stock_take();
+                btnUpload.Enabled = false;
+                MessageBox.Show("Upload complete!", "Stock Upload", MessageBoxButtons.OK);
             }
         }
 
@@ -484,14 +486,14 @@ namespace stockMaster
                 if (stock_take_location == 1)//traditional
                 {
                     //wipe ALL of the traditional stock aside from paint/laser 
-                    sql = " update [order_database_booking_in_test].dbo.[stock] set amount_in_stock = 0 where (slimline_stock_yn = 0 or slimline_stock_yn is null) AND(paint_identifier = 0 or paint_identifier is null) AND(laser_material_identifier = 0 or laser_material_identifier is null)";
+                    sql = " update [order_database_booking_in_test].dbo.[stock] set amount_in_stock = 0, [location] = '' where (slimline_stock_yn = 0 or slimline_stock_yn is null) AND(paint_identifier = 0 or paint_identifier is null) AND(laser_material_identifier = 0 or laser_material_identifier is null)";
                     using (SqlCommand cmd = new SqlCommand(sql, conn))
                         cmd.ExecuteNonQuery();
                     prog.Value = 0;
                     prog.Maximum = dataGridView1.Rows.Count;
                     for (int i = 0; i < dataGridView1.Rows.Count; i++) //go through each row and update new quantity
                     {
-                        sql = "update [order_database_booking_in_test].dbo.[stock] SET amount_in_stock = amount_in_stock + " + dataGridView1.Rows[i].Cells[2].Value.ToString() + "where stock_code = '" + dataGridView1.Rows[i].Cells[0].Value.ToString() + "' AND (slimline_stock_yn = 0 or slimline_stock_yn is null) AND(paint_identifier = 0 or paint_identifier is null) AND(laser_material_identifier = 0 or laser_material_identifier is null)";
+                        sql = "update [order_database_booking_in_test].dbo.[stock] SET amount_in_stock = amount_in_stock + " + dataGridView1.Rows[i].Cells[2].Value.ToString() + " where stock_code = '" + dataGridView1.Rows[i].Cells[0].Value.ToString() + "' AND (slimline_stock_yn = 0 or slimline_stock_yn is null) AND (paint_identifier = 0 or paint_identifier is null) AND (laser_material_identifier = 0 or laser_material_identifier is null)";
                         using (SqlCommand cmd = new SqlCommand(sql, conn))
                             cmd.ExecuteNonQuery();
                         prog.Value++;
@@ -516,7 +518,7 @@ namespace stockMaster
                 else //slimline
                 {
                     //wipe ALL of the slimline stock
-                    sql = " update [order_database_booking_in_test].dbo.[stock] set amount_in_stock = 0 where slimline_stock_yn = -1";
+                    sql = " update [order_database_booking_in_test].dbo.[stock] set amount_in_stock = 0, [location] = '' where slimline_stock_yn = -1";
                     using (SqlCommand cmd = new SqlCommand(sql, conn))
                         cmd.ExecuteNonQuery();
                     prog.Value = 0;
@@ -548,7 +550,7 @@ namespace stockMaster
                 conn.Close();
             }
         }
-        private void partial_stock_take()
+        private void partial_stock_take() //checking this one
         {
             string sql = "";
             //partial = wipe all the items in the dgv to 0 and then upload new value
@@ -561,27 +563,138 @@ namespace stockMaster
                 {
                     for (int i = 0; i < dataGridView1.Rows.Count; i++)
                     {//set all of the live items to 0 that appear in this csv
-                        sql = "UPDATE [order_database_booking_in_test].dbo.stock SET amount_in_stock = 0, [location] = '' WHERE stock_code '" + dataGridView1.Rows[i].Cells[0] + "'  AND(slimline_stock_yn = 0 or slimline_stock_yn is null) AND(paint_identifier = 0 or paint_identifier is null) AND(laser_material_identifier = 0 or laser_material_identifier is null)";
+
+                        sql = "UPDATE [order_database_booking_in_test].dbo.stock SET amount_in_stock = 0, [location] = '' WHERE stock_code = '" + dataGridView1.Rows[i].Cells[0].Value.ToString() + "'  AND(slimline_stock_yn = 0 or slimline_stock_yn is null) AND(paint_identifier = 0 or paint_identifier is null) AND(laser_material_identifier = 0 or laser_material_identifier is null)";
                         using (SqlCommand cmd = new SqlCommand(sql, conn))
                             cmd.ExecuteNonQuery();
                         prog.Value++;
                     }
                     prog.Value = 0;
-                    for (int i = 0;i < dataGridView1.Rows.Count;i++)
+                    for (int i = 0; i < dataGridView1.Rows.Count; i++)
                     {
-
+                        sql = "UPDATE [order_database_booking_in_test].dbo.stock SET amount_in_stock = amount_in_stock + " + dataGridView1.Rows[i].Cells[2].Value.ToString() + " WHERE stock_code = '" + dataGridView1.Rows[i].Cells[0].Value.ToString() + "'  AND (slimline_stock_yn = 0 or slimline_stock_yn is null) AND (paint_identifier = 0 or paint_identifier is null) AND (laser_material_identifier = 0 or laser_material_identifier is null)";
+                        using (SqlCommand cmd = new SqlCommand(sql, conn))
+                            cmd.ExecuteNonQuery();
                         prog.Value++;
                     }
+                    prog.Value = 0;
+                    for (int i = 0; i < dataGridView1.Rows.Count; i++) //go through each row and update location ? 
+                    {
+                        using (var command = new SqlCommand("usp_stock_master_location", conn) //new name but is exactly same as before, nothing rewritten here
+                        {
+                            CommandType = System.Data.CommandType.StoredProcedure
+                        })
+                        {
+                            command.Parameters.Add("@datarow_stock", SqlDbType.VarChar).Value = dataGridView1.Rows[i].Cells[0].Value.ToString();
+                            command.Parameters.Add("@datarow_location", SqlDbType.VarChar).Value = dataGridView1.Rows[i].Cells[4].Value.ToString();
+                            command.Parameters.Add("@if_number", SqlDbType.VarChar).Value = '4'; //traditional partial
+                            //command.ExecuteNonQuery();  //no need to test this cause its old code but this does affect live stock so dont run it
+                        }
+                        prog.Value++;
+                    }
+                    prog.Value = 0;
                 }
                 if (stock_take_location == 2)//slimline
                 {
+                    for (int i = 0; i < dataGridView1.Rows.Count; i++)
+                    {//set all of the live items to 0 that appear in this csv
+
+                        sql = "UPDATE [order_database_booking_in_test].dbo.stock SET amount_in_stock = 0, [location] = '' WHERE stock_code = '" + dataGridView1.Rows[i].Cells[0].Value.ToString() + "'  AND slimline_stock_yn = -1 ";
+                        using (SqlCommand cmd = new SqlCommand(sql, conn))
+                            cmd.ExecuteNonQuery();
+                        prog.Value++;
+                    }
+                    prog.Value = 0;
+                    for (int i = 0; i < dataGridView1.Rows.Count; i++)
+                    {
+                        sql = "UPDATE [order_database_booking_in_test].dbo.stock SET amount_in_stock = amount_in_stock + " + dataGridView1.Rows[i].Cells[2].Value.ToString() + " WHERE stock_code = '" + dataGridView1.Rows[i].Cells[0].Value.ToString() + "'  AND slimline_stock_yn = -1 ";
+                        using (SqlCommand cmd = new SqlCommand(sql, conn))
+                            cmd.ExecuteNonQuery();
+                        prog.Value++;
+                    }
+                    prog.Value = 0;
+                    for (int i = 0; i < dataGridView1.Rows.Count; i++) //go through each row and update location ? 
+                    {
+                        using (var command = new SqlCommand("usp_stock_master_location", conn) //new name but is exactly same as before, nothing rewritten here
+                        {
+                            CommandType = System.Data.CommandType.StoredProcedure
+                        })
+                        {
+                            command.Parameters.Add("@datarow_stock", SqlDbType.VarChar).Value = dataGridView1.Rows[i].Cells[0].Value.ToString();
+                            command.Parameters.Add("@datarow_location", SqlDbType.VarChar).Value = dataGridView1.Rows[i].Cells[4].Value.ToString();
+                            command.Parameters.Add("@if_number", SqlDbType.VarChar).Value = '3'; //slimline partial
+                            //command.ExecuteNonQuery();  //no need to test this cause its old code but this does affect live stock so dont run it
+                        }
+                        prog.Value++;
+                    }
+                    prog.Value = 0;
                 }
                 conn.Close();
             }
         }
         private void incremental_stock_take()
         {
-
+            string sql = "";
+            //only adds to the current value (does not wipe anything to 0)
+            prog.Value = 0;
+            prog.Maximum = dataGridView1.Rows.Count;
+            using (SqlConnection conn = new SqlConnection(CONNECT.ConnectionString))
+            {
+                conn.Open();
+                if (stock_take_location == 1) //traditional
+                {
+                    for (int i = 0; i < dataGridView1.Rows.Count; i++)
+                    {
+                        sql = "update [order_database_booking_in_test].dbo.[stock] SET amount_in_stock = amount_in_stock + " + dataGridView1.Rows[i].Cells[2].Value.ToString() + " WHERE stock_code = '" + dataGridView1.Rows[i].Cells[0].Value.ToString() + "' AND (slimline_stock_yn = 0 or slimline_stock_yn is null) AND (paint_identifier = 0 or paint_identifier is null) AND (laser_material_identifier = 0 or laser_material_identifier is null)"; 
+                        using (SqlCommand cmd = new SqlCommand(sql, conn))
+                            cmd.ExecuteNonQuery();
+                        prog.Value++;
+                    }
+                    prog.Value = 0;
+                    for (int i = 0; i < dataGridView1.Rows.Count; i++) //go through each row and update location ? 
+                    {
+                        using (var command = new SqlCommand("usp_stock_master_location", conn) //new name but is exactly same as before, nothing rewritten here
+                        {
+                            CommandType = System.Data.CommandType.StoredProcedure
+                        })
+                        {
+                            command.Parameters.Add("@datarow_stock", SqlDbType.VarChar).Value = dataGridView1.Rows[i].Cells[0].Value.ToString();
+                            command.Parameters.Add("@datarow_location", SqlDbType.VarChar).Value = dataGridView1.Rows[i].Cells[4].Value.ToString();
+                            command.Parameters.Add("@if_number", SqlDbType.VarChar).Value = '6'; //traditional incremental
+                            //command.ExecuteNonQuery();  //no need to test this cause its old code but this does affect live stock so dont run it
+                        }
+                        prog.Value++;
+                    }
+                    prog.Value = 0;
+                }
+                if (stock_take_location == 2)
+                {
+                    for (int i = 0; i < dataGridView1.Rows.Count; i++)
+                    {
+                        sql = "update [order_database_booking_in_test].dbo.[stock] SET amount_in_stock = amount_in_stock + " + dataGridView1.Rows[i].Cells[2].Value.ToString() + " WHERE stock_code = '" + dataGridView1.Rows[i].Cells[0].Value.ToString() + "' AND slimline_stock_yn = -1";
+                        using (SqlCommand cmd = new SqlCommand(sql, conn))
+                            cmd.ExecuteNonQuery();
+                        prog.Value++;
+                    }
+                    prog.Value = 0;
+                    for (int i = 0; i < dataGridView1.Rows.Count; i++) //go through each row and update location ? 
+                    {
+                        using (var command = new SqlCommand("usp_stock_master_location", conn) //new name but is exactly same as before, nothing rewritten here
+                        {
+                            CommandType = System.Data.CommandType.StoredProcedure
+                        })
+                        {
+                            command.Parameters.Add("@datarow_stock", SqlDbType.VarChar).Value = dataGridView1.Rows[i].Cells[0].Value.ToString();
+                            command.Parameters.Add("@datarow_location", SqlDbType.VarChar).Value = dataGridView1.Rows[i].Cells[4].Value.ToString();
+                            command.Parameters.Add("@if_number", SqlDbType.VarChar).Value = '5'; //traditional incremental
+                            //command.ExecuteNonQuery();  //no need to test this cause its old code but this does affect live stock so dont run it
+                        }
+                        prog.Value++;
+                    }
+                    prog.Value = 0;
+                }
+                conn.Close();
+            }
         }
     }
 }
