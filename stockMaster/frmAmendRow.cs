@@ -22,7 +22,7 @@ namespace stockMaster
             dataGridView1.Columns[3].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
             dataGridView1.Columns[4].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
             dataGridView1.Columns[5].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-
+            dataGridView1.ReadOnly = true;
 
         }
 
@@ -49,7 +49,7 @@ namespace stockMaster
             using (SqlConnection conn = new SqlConnection(CONNECT.ConnectionString))
             {
                 conn.Open();
-                string sql = "SELECT COALESCE([cost_price],0) from dbo.[stock] where [stock_code] =  " + dataGridView1.Rows[0].Cells[0].Value.ToString();
+                string sql = "SELECT COALESCE([cost_price],0) from dbo.[stock] where [stock_code] =  '" + dataGridView1.Rows[0].Cells[0].Value.ToString() + "'";
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
                     cost_price = Convert.ToDouble(cmd.ExecuteScalar());
@@ -75,6 +75,7 @@ namespace stockMaster
                 lblInfo.Text = "This row has a quantity over 5000 and a total value of over £5000" + Environment.NewLine + "Please amend the quantity or bypass this row.";
                 dataGridView1.Rows[0].DefaultCellStyle.BackColor = Color.Goldenrod;
             }
+            dataGridView1.ClearSelection();
         }
 
         private void btnAmend_Click(object sender, EventArgs e)
@@ -153,6 +154,12 @@ namespace stockMaster
             CONNECT.changeQuantity = false;
             CONNECT.newQuantity = 0;
             this.Close();
+        }
+
+        private void txtQuantity_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+                btnAmend.PerformClick();
         }
     }
 }

@@ -29,7 +29,10 @@ namespace stockMaster
                 this.Close();
             }
             else
+            {
                 MessageBox.Show("Wrong password!");
+                txtPassword.Text = "";
+            }
         }
 
         private void txtPassword_KeyDown(object sender, KeyEventArgs e)

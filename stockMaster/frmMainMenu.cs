@@ -11,7 +11,7 @@ namespace stockMaster
 {
     public partial class frmMainMenu : Form
     {
-
+        public DataTable _backupDT { get; set; }
         public int csvCount { get; set; }
         public int stock_take_type { get; set; }//--1 = full, 2 = incremental, 3 = partial
         public int stock_take_location { get; set; } //1 = tradiitonal, 2 = slimline
@@ -66,7 +66,6 @@ namespace stockMaster
 
         private void btnAttachCSV_Click(object sender, EventArgs e)
         {
-
             btnSnapShot.Enabled = false;
             btnBypass.Enabled = false;
             //if csv has already been entered messagebox to inform the new one will be appended 
@@ -84,9 +83,19 @@ namespace stockMaster
                 catch
                 {
                     MessageBox.Show("There was an error loading this file.");
+                    prog.Value = 0;
+                    try
+                    {
+                        dataGridView1.DataSource = _backupDT;
+                        dataGridView1.ClearSelection();
+                        format();
+                    }
+                    catch
+                    { }
                     return;
                 }
             }
+            dataGridView1.ClearSelection();
         }
 
         private void insertCSV(string file)
@@ -94,7 +103,7 @@ namespace stockMaster
             string textLine = string.Empty;
             string[] splitLine;
             string sql = "";
-
+            _backupDT = null;
             var dt = new DataTable();
             dt.Columns.AddRange(new[]
                 {
@@ -174,6 +183,7 @@ namespace stockMaster
                     dr[5] = row.Cells[5].Value;
                     dt.Rows.Add(dr);
                 }
+                _backupDT = dt;
                 dataGridView1.DataSource = null;
                 dataGridView1.Rows.Clear();
 
@@ -258,11 +268,11 @@ namespace stockMaster
                     isBypassed++;
                     continue;
                 }
-                try
+                try //try catch for null entries
                 {
                     quantity = Convert.ToDouble(dataGridView1.Rows[i].Cells[2].Value);
 
-                    if (quantity > 5000) //maybe try catch this cause it could be null?
+                    if (quantity > 5000) 
                     {
                         dataGridView1.Rows[i].DefaultCellStyle.BackColor = Color.PaleVioletRed;
                         overQuantity++;
@@ -359,6 +369,7 @@ namespace stockMaster
                 btnSnapShot.Enabled = true;
             }
             prog.Value = 0;
+            dataGridView1.ClearSelection();
         }
 
         private void btnBypass_Click(object sender, EventArgs e)
@@ -420,10 +431,12 @@ namespace stockMaster
                 MessageBox.Show("Aborted!", "Missing/Wrong Password", MessageBoxButtons.OK);
             }
             prog.Value = 0;
+            dataGridView1.ClearSelection();
         }
 
         private void btnSnapShot_Click(object sender, EventArgs e)
         {
+            //final csv check --- incase they got past 
             //loop through each of the rows and upload to 
             btnSnapShot.Enabled = false;
             btnCheckCSV.Enabled = false;
@@ -469,7 +482,7 @@ namespace stockMaster
         private void btnUpload_Click(object sender, EventArgs e)
         {
             //to keep this cleaning im thinking private void for each type rather than a huge if - should be better readability for the future unlike the last one
-            DialogResult result = MessageBox.Show("Are you sure you want to upload this stock take?","Stock Upload",MessageBoxButtons.YesNo);
+            DialogResult result = MessageBox.Show("Are you sure you want to upload this stock take?", "Stock Upload", MessageBoxButtons.YesNo);
             if (result == DialogResult.Yes) //all references to dbo.stock in this upload segment is prefixed with [order_database_booking_in_test] - the usp for adding location is commented out (worked in the last stock take program)
             {
                 if (stock_take_type == 1)
@@ -482,6 +495,7 @@ namespace stockMaster
                 prog.Value = prog.Maximum;
                 MessageBox.Show("Upload complete!", "Stock Upload", MessageBoxButtons.OK);
                 prog.Value = 0;
+                dataGridView1.ClearSelection();
             }
         }
 
@@ -557,6 +571,7 @@ namespace stockMaster
                 }
                 conn.Close();
             }
+            dataGridView1.ClearSelection();
         }
         private void partial_stock_take() //checking this one
         {
@@ -653,7 +668,7 @@ namespace stockMaster
                 {
                     for (int i = 0; i < dataGridView1.Rows.Count; i++)
                     {
-                        sql = "update [order_database_booking_in_test].dbo.[stock] SET amount_in_stock = amount_in_stock + " + dataGridView1.Rows[i].Cells[2].Value.ToString() + " WHERE stock_code = '" + dataGridView1.Rows[i].Cells[0].Value.ToString() + "' AND (slimline_stock_yn = 0 or slimline_stock_yn is null) AND (paint_identifier = 0 or paint_identifier is null) AND (laser_material_identifier = 0 or laser_material_identifier is null)"; 
+                        sql = "update [order_database_booking_in_test].dbo.[stock] SET amount_in_stock = amount_in_stock + " + dataGridView1.Rows[i].Cells[2].Value.ToString() + " WHERE stock_code = '" + dataGridView1.Rows[i].Cells[0].Value.ToString() + "' AND (slimline_stock_yn = 0 or slimline_stock_yn is null) AND (paint_identifier = 0 or paint_identifier is null) AND (laser_material_identifier = 0 or laser_material_identifier is null)";
                         using (SqlCommand cmd = new SqlCommand(sql, conn))
                             cmd.ExecuteNonQuery();
                         prog.Value++;
