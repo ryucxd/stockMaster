@@ -75,6 +75,7 @@ namespace stockMaster
                 lblInfo.Text = "This row has a quantity over 5000 and a total value of over £5000" + Environment.NewLine + "Please amend the quantity or bypass this row.";
                 dataGridView1.Rows[0].DefaultCellStyle.BackColor = Color.Goldenrod;
             }
+            txtQuantity.Focus();
             dataGridView1.ClearSelection();
         }
 

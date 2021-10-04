@@ -372,7 +372,7 @@ namespace stockMaster
             dataGridView1.ClearSelection();
         }
 
-        private void btnBypass_Click(object sender, EventArgs e)
+        private void btnBypass_Click(object sender, EventArgs e) 
         {
             //run csvcheck before doing this (in the event they have edited the dgv since...
             btnCheckCSV.PerformClick();
@@ -386,7 +386,6 @@ namespace stockMaster
                 prog.Maximum = dataGridView1.Rows.Count;
                 for (int i = 0; i < dataGridView1.Rows.Count; i++)
                 {
-
                     if (dataGridView1.Rows[i].DefaultCellStyle.BackColor == Color.PaleVioletRed || dataGridView1.Rows[i].DefaultCellStyle.BackColor == Color.Goldenrod || dataGridView1.Rows[i].DefaultCellStyle.BackColor == Color.CornflowerBlue)
                     {
                         var dt = new DataTable();
@@ -452,7 +451,7 @@ namespace stockMaster
                     {
                         CommandType = System.Data.CommandType.StoredProcedure
                     })
-                    {
+                    { 
                         command.Parameters.Add("@stock_take_type", SqlDbType.Int).Value = stock_take_type;
                         command.Parameters.Add("@stock_code", SqlDbType.VarChar).Value = dataGridView1.Rows[i].Cells[0].Value;
                         command.Parameters.Add("@quantity", SqlDbType.VarChar).Value = dataGridView1.Rows[i].Cells[2].Value;
@@ -711,7 +710,7 @@ namespace stockMaster
                             command.Parameters.Add("@datarow_location", SqlDbType.VarChar).Value = dataGridView1.Rows[i].Cells[4].Value.ToString();
                             command.Parameters.Add("@if_number", SqlDbType.VarChar).Value = '5'; //traditional incremental
                             //command.ExecuteNonQuery();  //no need to test this cause its old code but this does affect live stock so dont run it
-                        }
+                        } 
                         prog.Value++;
                     }
                     prog.Value = 0;
