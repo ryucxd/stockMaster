@@ -686,7 +686,7 @@ namespace stockMaster
                             //command.ExecuteNonQuery();  //no need to test this cause its old code but this does affect live stock so dont run it
                         }
                         prog.Value++;
-                    }
+                    } 
                     prog.Value = 0;
                 }
                 if (stock_take_location == 2)

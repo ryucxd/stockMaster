@@ -82,6 +82,7 @@ namespace stockMaster
         private void btnAmend_Click(object sender, EventArgs e)
         {
             CONNECT.changeQuantity = false;
+            CONNECT.newQuantity = 0;
             if (txtQuantity.Text.Length < 1)
                 return;
             //if new qty < 5000 AND the new price is also less than £5000 then we can close form and go next
@@ -94,6 +95,7 @@ namespace stockMaster
                 CONNECT.newQuantity = quantity;
                 DialogResult result = MessageBox.Show("Are you sure you want to amend the quantiy from: " + dataGridView1.Rows[0].Cells[2].Value.ToString() + " to: " + quantity + "?", "Amend Quantity", MessageBoxButtons.YesNo);
                 if (result == DialogResult.Yes)
+
                 {
                     CONNECT.changeQuantity = true;
                     this.Close();
