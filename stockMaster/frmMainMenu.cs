@@ -143,7 +143,7 @@ namespace stockMaster
                     prog.Value = 0;
                     for (int i = 0; i < dt.Rows.Count; i++)
                     {
-                        sql = "select [description] from dbo.stock where stock_code = " + dt.Rows[i][0].ToString();
+                        sql = "select [description] from dbo.stock where stock_code = '" + dt.Rows[i][0].ToString() + "'";
                         using (SqlCommand cmd = new SqlCommand(sql, conn))
                         {
                             if (dt.Rows[i][1].ToString() == "")
@@ -213,7 +213,7 @@ namespace stockMaster
                     prog.Value = 0;
                     for (int i = 0; i < dt.Rows.Count; i++)
                     {
-                        sql = "select [description] from dbo.stock where stock_code = " + dt.Rows[i][0].ToString();
+                        sql = "select [description] from dbo.stock where stock_code = '" + dt.Rows[i][0].ToString() + "'";
                         using (SqlCommand cmd = new SqlCommand(sql, conn))
                         {
                             if (dt.Rows[i][1].ToString() == "")
@@ -254,10 +254,15 @@ namespace stockMaster
             lblNull2.Visible = false;
             lblBypass1.Visible = false;
             lblBypass2.Visible = false;
+            lblInvalid1.Visible = false;
+            lblInvalid2.Visible = false;
+            lblStockCode1.Visible = false;
+            lblStockCode2.Visible = false;
+            btnDeleteStockCodes.Visible = false;
 
             //here we go through all the rows and check if the price or quantity is over a certain limit OR 
             //stock code/quantity are null // blank row etc
-            int overQuantity = 0, overPrice = 0, isNull = 0, isBypassed = 0, noStockCode = 0;
+            int overQuantity = 0, overPrice = 0, isNull = 0, isBypassed = 0, noStockCode = 0, invalidStockCode = 0;
             double quantity = 0;
             prog.Maximum = dataGridView1.Rows.Count;
             prog.Value = 0;
@@ -268,22 +273,44 @@ namespace stockMaster
                     isBypassed++;
                     continue;
                 }
+
                 try //try catch for null entries
                 {
                     quantity = Convert.ToDouble(dataGridView1.Rows[i].Cells[2].Value);
 
-                    if (quantity > 5000) 
+                    if (quantity > 5000)
                     {
                         dataGridView1.Rows[i].DefaultCellStyle.BackColor = Color.PaleVioletRed;
                         overQuantity++;
                     }
                     else
                         dataGridView1.Rows[i].DefaultCellStyle.BackColor = Color.Empty;
+
+                    //catch invalid stockcodes
+
+                    using (SqlConnection conn = new SqlConnection(CONNECT.ConnectionString))
+                    {
+                        string sql = "select id from dbo.stock where stock_code =  '" + dataGridView1.Rows[i].Cells[0].Value.ToString() + "'";
+                        using (SqlCommand cmd = new SqlCommand(sql, conn))
+                        {
+                            conn.Open();
+                            var getdata = cmd.ExecuteScalar();
+                            if (getdata == null)
+                            {
+                                dataGridView1.Rows[i].DefaultCellStyle.BackColor = Color.LightPink;
+                                invalidStockCode++;
+                            }
+                            conn.Close();
+
+                        }
+                    }
+
+
                     //check value of this item * quantity
                     using (SqlConnection conn = new SqlConnection(CONNECT.ConnectionString))
                     {
                         conn.Open();
-                        string sql = "SELECT COALESCE([cost_price],0) from dbo.[stock] where [stock_code] =  " + dataGridView1.Rows[i].Cells[0].Value.ToString();
+                        string sql = "SELECT COALESCE([cost_price],0) from dbo.[stock] where [stock_code] =  '" + dataGridView1.Rows[i].Cells[0].Value.ToString() + "'";
                         using (SqlCommand cmd = new SqlCommand(sql, conn))
                         {
                             double price = Convert.ToDouble(cmd.ExecuteScalar());
@@ -304,7 +331,8 @@ namespace stockMaster
                     isNull++;
                 }
 
-                //final catch for rows with NO stock code (causes big problems
+
+                //catch for rows with NO stock code (causes big problems
                 if (String.IsNullOrEmpty(dataGridView1.Rows[i].Cells[0].Value.ToString()))
                 {
                     dataGridView1.Rows[i].DefaultCellStyle.BackColor = Color.Red;
@@ -316,7 +344,7 @@ namespace stockMaster
             }
             prog.Value = dataGridView1.Rows.Count - 1;
             //if anything has been coloured we need to first correct/ignore them
-            if (isNull > 0 || overPrice > 0 || overQuantity > 0 || noStockCode > 0)
+            if (isNull > 0 || overPrice > 0 || overQuantity > 0 || noStockCode > 0 || invalidStockCode > 0)
             {
                 //build a message to inform how many errord of each kind we have
                 btnSnapShot.Enabled = false;
@@ -324,7 +352,7 @@ namespace stockMaster
                 string message = "Before you can continue with the stock take, you must fix or bypass the warnings found within thethe csv file." + Environment.NewLine;
                 if (isNull > 0)
                 {
-                    message = message + Environment.NewLine + isNull.ToString() + " Null row entries.";
+                    message = message + Environment.NewLine + isNull.ToString() + " Null quantity entries.";
                     lblNull1.Visible = true;
                     lblNull2.Visible = true;
                 }
@@ -348,9 +376,16 @@ namespace stockMaster
                 }
                 if (noStockCode > 0)
                 {
-                    message = message + Environment.NewLine + noStockCode.ToString() + " rows without a valid stock code - these must be fixed in the CSV/data grid view.";
+                    message = message + Environment.NewLine + noStockCode.ToString() + " rows without a no stock code entered - these must be fixed in the CSV/data grid view.";
                     lblStockCode1.Visible = true;
                     lblStockCode2.Visible = true;
+                    btnDeleteStockCodes.Visible = true;
+                }
+                if (invalidStockCode > 0)
+                {
+                    message = message + Environment.NewLine + invalidStockCode.ToString() + " rows with an invalid stock code - these must be fixed in the CSV/data grid view.";
+                    lblInvalid1.Visible = true;
+                    lblInvalid2.Visible = true;
                 }
 
                 prog.Value = prog.Maximum;
@@ -372,7 +407,7 @@ namespace stockMaster
             dataGridView1.ClearSelection();
         }
 
-        private void btnBypass_Click(object sender, EventArgs e) 
+        private void btnBypass_Click(object sender, EventArgs e)
         {
             //run csvcheck before doing this (in the event they have edited the dgv since...
             btnCheckCSV.PerformClick();
@@ -451,7 +486,7 @@ namespace stockMaster
                     {
                         CommandType = System.Data.CommandType.StoredProcedure
                     })
-                    { 
+                    {
                         command.Parameters.Add("@stock_take_type", SqlDbType.Int).Value = stock_take_type;
                         command.Parameters.Add("@stock_code", SqlDbType.VarChar).Value = dataGridView1.Rows[i].Cells[0].Value;
                         command.Parameters.Add("@quantity", SqlDbType.VarChar).Value = dataGridView1.Rows[i].Cells[2].Value;
@@ -482,7 +517,7 @@ namespace stockMaster
         {
             //to keep this cleaning im thinking private void for each type rather than a huge if - should be better readability for the future unlike the last one
             DialogResult result = MessageBox.Show("Are you sure you want to upload this stock take?", "Stock Upload", MessageBoxButtons.YesNo);
-            if (result == DialogResult.Yes) //all references to dbo.stock in this upload segment is prefixed with [order_database_booking_in_test] - the usp for adding location is commented out (worked in the last stock take program)
+            if (result == DialogResult.Yes) //all references to dbo.stock in this upload segment are prefixed with [order_database_booking_in_test] - the usp for adding location is commented out (worked in the last stock take program)
             {
                 if (stock_take_type == 1)
                     full_stock_take();
@@ -507,14 +542,14 @@ namespace stockMaster
                 if (stock_take_location == 1)//traditional
                 {
                     //wipe ALL of the traditional stock aside from paint/laser 
-                    sql = " update [order_database_booking_in_test].dbo.[stock] set amount_in_stock = 0, [location] = '' where (slimline_stock_yn = 0 or slimline_stock_yn is null) AND(paint_identifier = 0 or paint_identifier is null) AND(laser_material_identifier = 0 or laser_material_identifier is null)";
+                    sql = " update [order_database].dbo.[stock] set amount_in_stock = 0, [location] = '' where (slimline_stock_yn = 0 or slimline_stock_yn is null) AND(paint_identifier = 0 or paint_identifier is null) AND(laser_material_identifier = 0 or laser_material_identifier is null)";
                     using (SqlCommand cmd = new SqlCommand(sql, conn))
                         cmd.ExecuteNonQuery();
                     prog.Value = 0;
                     prog.Maximum = dataGridView1.Rows.Count;
                     for (int i = 0; i < dataGridView1.Rows.Count; i++) //go through each row and update new quantity
                     {
-                        sql = "update [order_database_booking_in_test].dbo.[stock] SET amount_in_stock = amount_in_stock + " + dataGridView1.Rows[i].Cells[2].Value.ToString() + " where stock_code = '" + dataGridView1.Rows[i].Cells[0].Value.ToString() + "' AND (slimline_stock_yn = 0 or slimline_stock_yn is null) AND (paint_identifier = 0 or paint_identifier is null) AND (laser_material_identifier = 0 or laser_material_identifier is null)";
+                        sql = "update [order_database].dbo.[stock] SET amount_in_stock = amount_in_stock + " + dataGridView1.Rows[i].Cells[2].Value.ToString() + " where stock_code = '" + dataGridView1.Rows[i].Cells[0].Value.ToString() + "' AND (slimline_stock_yn = 0 or slimline_stock_yn is null) AND (paint_identifier = 0 or paint_identifier is null) AND (laser_material_identifier = 0 or laser_material_identifier is null)";
                         using (SqlCommand cmd = new SqlCommand(sql, conn))
                             cmd.ExecuteNonQuery();
                         prog.Value++;
@@ -546,7 +581,7 @@ namespace stockMaster
                     prog.Maximum = dataGridView1.Rows.Count;
                     for (int i = 0; i < dataGridView1.Rows.Count; i++) //go through each row and update new quantity
                     {
-                        sql = "update [order_database_booking_in_test].dbo.[stock] SET amount_in_stock = amount_in_stock + " + dataGridView1.Rows[i].Cells[2].Value.ToString() + " where stock_code = '" + dataGridView1.Rows[i].Cells[0].Value.ToString() + "' AND slimline_stock_yn = -1";
+                        sql = "update [order_database].dbo.[stock] SET amount_in_stock = amount_in_stock + " + dataGridView1.Rows[i].Cells[2].Value.ToString() + " where stock_code = '" + dataGridView1.Rows[i].Cells[0].Value.ToString() + "' AND slimline_stock_yn = -1";
                         using (SqlCommand cmd = new SqlCommand(sql, conn))
                             cmd.ExecuteNonQuery();
                         prog.Value++;
@@ -586,7 +621,7 @@ namespace stockMaster
                     for (int i = 0; i < dataGridView1.Rows.Count; i++)
                     {//set all of the live items to 0 that appear in this csv
 
-                        sql = "UPDATE [order_database_booking_in_test].dbo.stock SET amount_in_stock = 0, [location] = '' WHERE stock_code = '" + dataGridView1.Rows[i].Cells[0].Value.ToString() + "'  AND(slimline_stock_yn = 0 or slimline_stock_yn is null) AND(paint_identifier = 0 or paint_identifier is null) AND(laser_material_identifier = 0 or laser_material_identifier is null)";
+                        sql = "UPDATE [order_database].dbo.stock SET amount_in_stock = 0, [location] = '' WHERE stock_code = '" + dataGridView1.Rows[i].Cells[0].Value.ToString() + "'  AND(slimline_stock_yn = 0 or slimline_stock_yn is null) AND(paint_identifier = 0 or paint_identifier is null) AND(laser_material_identifier = 0 or laser_material_identifier is null)";
                         using (SqlCommand cmd = new SqlCommand(sql, conn))
                             cmd.ExecuteNonQuery();
                         prog.Value++;
@@ -594,7 +629,7 @@ namespace stockMaster
                     prog.Value = 0;
                     for (int i = 0; i < dataGridView1.Rows.Count; i++)
                     {
-                        sql = "UPDATE [order_database_booking_in_test].dbo.stock SET amount_in_stock = amount_in_stock + " + dataGridView1.Rows[i].Cells[2].Value.ToString() + " WHERE stock_code = '" + dataGridView1.Rows[i].Cells[0].Value.ToString() + "'  AND (slimline_stock_yn = 0 or slimline_stock_yn is null) AND (paint_identifier = 0 or paint_identifier is null) AND (laser_material_identifier = 0 or laser_material_identifier is null)";
+                        sql = "UPDATE [order_database].dbo.stock SET amount_in_stock = amount_in_stock + " + dataGridView1.Rows[i].Cells[2].Value.ToString() + " WHERE stock_code = '" + dataGridView1.Rows[i].Cells[0].Value.ToString() + "'  AND (slimline_stock_yn = 0 or slimline_stock_yn is null) AND (paint_identifier = 0 or paint_identifier is null) AND (laser_material_identifier = 0 or laser_material_identifier is null)";
                         using (SqlCommand cmd = new SqlCommand(sql, conn))
                             cmd.ExecuteNonQuery();
                         prog.Value++;
@@ -621,7 +656,7 @@ namespace stockMaster
                     for (int i = 0; i < dataGridView1.Rows.Count; i++)
                     {//set all of the live items to 0 that appear in this csv
 
-                        sql = "UPDATE [order_database_booking_in_test].dbo.stock SET amount_in_stock = 0, [location] = '' WHERE stock_code = '" + dataGridView1.Rows[i].Cells[0].Value.ToString() + "'  AND slimline_stock_yn = -1 ";
+                        sql = "UPDATE [order_database].dbo.stock SET amount_in_stock = 0, [location] = '' WHERE stock_code = '" + dataGridView1.Rows[i].Cells[0].Value.ToString() + "'  AND slimline_stock_yn = -1 ";
                         using (SqlCommand cmd = new SqlCommand(sql, conn))
                             cmd.ExecuteNonQuery();
                         prog.Value++;
@@ -629,7 +664,7 @@ namespace stockMaster
                     prog.Value = 0;
                     for (int i = 0; i < dataGridView1.Rows.Count; i++)
                     {
-                        sql = "UPDATE [order_database_booking_in_test].dbo.stock SET amount_in_stock = amount_in_stock + " + dataGridView1.Rows[i].Cells[2].Value.ToString() + " WHERE stock_code = '" + dataGridView1.Rows[i].Cells[0].Value.ToString() + "'  AND slimline_stock_yn = -1 ";
+                        sql = "UPDATE [order_database].dbo.stock SET amount_in_stock = amount_in_stock + " + dataGridView1.Rows[i].Cells[2].Value.ToString() + " WHERE stock_code = '" + dataGridView1.Rows[i].Cells[0].Value.ToString() + "'  AND slimline_stock_yn = -1 ";
                         using (SqlCommand cmd = new SqlCommand(sql, conn))
                             cmd.ExecuteNonQuery();
                         prog.Value++;
@@ -667,7 +702,7 @@ namespace stockMaster
                 {
                     for (int i = 0; i < dataGridView1.Rows.Count; i++)
                     {
-                        sql = "update [order_database_booking_in_test].dbo.[stock] SET amount_in_stock = amount_in_stock + " + dataGridView1.Rows[i].Cells[2].Value.ToString() + " WHERE stock_code = '" + dataGridView1.Rows[i].Cells[0].Value.ToString() + "' AND (slimline_stock_yn = 0 or slimline_stock_yn is null) AND (paint_identifier = 0 or paint_identifier is null) AND (laser_material_identifier = 0 or laser_material_identifier is null)";
+                        sql = "update [order_database].dbo.[stock] SET amount_in_stock = amount_in_stock + " + dataGridView1.Rows[i].Cells[2].Value.ToString() + " WHERE stock_code = '" + dataGridView1.Rows[i].Cells[0].Value.ToString() + "' AND (slimline_stock_yn = 0 or slimline_stock_yn is null) AND (paint_identifier = 0 or paint_identifier is null) AND (laser_material_identifier = 0 or laser_material_identifier is null)";
                         using (SqlCommand cmd = new SqlCommand(sql, conn))
                             cmd.ExecuteNonQuery();
                         prog.Value++;
@@ -686,14 +721,14 @@ namespace stockMaster
                             //command.ExecuteNonQuery();  //no need to test this cause its old code but this does affect live stock so dont run it
                         }
                         prog.Value++;
-                    } 
+                    }
                     prog.Value = 0;
                 }
                 if (stock_take_location == 2)
                 {
                     for (int i = 0; i < dataGridView1.Rows.Count; i++)
                     {
-                        sql = "update [order_database_booking_in_test].dbo.[stock] SET amount_in_stock = amount_in_stock + " + dataGridView1.Rows[i].Cells[2].Value.ToString() + " WHERE stock_code = '" + dataGridView1.Rows[i].Cells[0].Value.ToString() + "' AND slimline_stock_yn = -1";
+                        sql = "update [order_database].dbo.[stock] SET amount_in_stock = amount_in_stock + " + dataGridView1.Rows[i].Cells[2].Value.ToString() + " WHERE stock_code = '" + dataGridView1.Rows[i].Cells[0].Value.ToString() + "' AND slimline_stock_yn = -1";
                         using (SqlCommand cmd = new SqlCommand(sql, conn))
                             cmd.ExecuteNonQuery();
                         prog.Value++;
@@ -710,12 +745,39 @@ namespace stockMaster
                             command.Parameters.Add("@datarow_location", SqlDbType.VarChar).Value = dataGridView1.Rows[i].Cells[4].Value.ToString();
                             command.Parameters.Add("@if_number", SqlDbType.VarChar).Value = '5'; //traditional incremental
                             //command.ExecuteNonQuery();  //no need to test this cause its old code but this does affect live stock so dont run it
-                        } 
+                        }
                         prog.Value++;
                     }
                     prog.Value = 0;
                 }
                 conn.Close();
+            }
+        }
+
+        private void btnDeleteStockCodes_Click(object sender, EventArgs e)
+        {
+            DialogResult result = MessageBox.Show("This will remove all rows with a red back colour. Are you sure you want to do this?", "Remove no stock code entries", MessageBoxButtons.YesNo);
+            int count = dataGridView1.Rows.Count;
+            int removed = 0;
+            prog.Maximum = count;
+            prog.Value = 0;
+            if (result == DialogResult.Yes)
+            {
+                for (int i = 0; i < count; i++)
+                {
+                    if (dataGridView1.Rows[i].DefaultCellStyle.BackColor == Color.Red)
+                    {
+                        DataGridViewRow delete = dataGridView1.Rows[i];
+                        dataGridView1.Rows.Remove(delete);
+                        removed++;
+                        i--;
+                        count--;
+                        prog.Value++;
+                    }
+                }
+                prog.Value = prog.Maximum;
+                MessageBox.Show(removed.ToString() + " rows with no stock code have been removed!");
+                btnCheckCSV.PerformClick();
             }
         }
     }

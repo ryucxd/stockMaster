@@ -40,5 +40,10 @@ namespace stockMaster
             if (e.KeyCode == Keys.Enter)
                 btnLogin.PerformClick();
         }
+
+        private void frmPassword_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

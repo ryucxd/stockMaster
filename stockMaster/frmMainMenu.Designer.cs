@@ -53,6 +53,9 @@
             this.lblBypass2 = new System.Windows.Forms.Label();
             this.lblStockCode1 = new System.Windows.Forms.Label();
             this.lblStockCode2 = new System.Windows.Forms.Label();
+            this.lblInvalid1 = new System.Windows.Forms.Label();
+            this.lblInvalid2 = new System.Windows.Forms.Label();
+            this.btnDeleteStockCodes = new System.Windows.Forms.Button();
             this.grpArea.SuspendLayout();
             this.grpType.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
@@ -217,17 +220,17 @@
             // 
             this.lblNull2.AutoSize = true;
             this.lblNull2.BackColor = System.Drawing.SystemColors.Control;
-            this.lblNull2.Location = new System.Drawing.Point(277, 68);
+            this.lblNull2.Location = new System.Drawing.Point(277, 47);
             this.lblNull2.Name = "lblNull2";
-            this.lblNull2.Size = new System.Drawing.Size(88, 13);
+            this.lblNull2.Size = new System.Drawing.Size(111, 13);
             this.lblNull2.TabIndex = 10;
-            this.lblNull2.Text = "= Null information";
+            this.lblNull2.Text = "= Null Quantity / Price";
             this.lblNull2.Visible = false;
             // 
             // lblPrice2
             // 
             this.lblPrice2.AutoSize = true;
-            this.lblPrice2.Location = new System.Drawing.Point(277, 87);
+            this.lblPrice2.Location = new System.Drawing.Point(277, 84);
             this.lblPrice2.Name = "lblPrice2";
             this.lblPrice2.Size = new System.Drawing.Size(115, 13);
             this.lblPrice2.TabIndex = 11;
@@ -237,7 +240,7 @@
             // lblQuantity2
             // 
             this.lblQuantity2.AutoSize = true;
-            this.lblQuantity2.Location = new System.Drawing.Point(277, 106);
+            this.lblQuantity2.Location = new System.Drawing.Point(277, 103);
             this.lblQuantity2.Name = "lblQuantity2";
             this.lblQuantity2.Size = new System.Drawing.Size(130, 13);
             this.lblQuantity2.TabIndex = 12;
@@ -248,7 +251,7 @@
             // 
             this.lblNull1.AutoSize = true;
             this.lblNull1.BackColor = System.Drawing.Color.CornflowerBlue;
-            this.lblNull1.Location = new System.Drawing.Point(262, 68);
+            this.lblNull1.Location = new System.Drawing.Point(262, 47);
             this.lblNull1.Name = "lblNull1";
             this.lblNull1.Size = new System.Drawing.Size(16, 13);
             this.lblNull1.TabIndex = 13;
@@ -259,7 +262,7 @@
             // 
             this.lblQuantity1.AutoSize = true;
             this.lblQuantity1.BackColor = System.Drawing.Color.PaleVioletRed;
-            this.lblQuantity1.Location = new System.Drawing.Point(262, 106);
+            this.lblQuantity1.Location = new System.Drawing.Point(262, 103);
             this.lblQuantity1.Name = "lblQuantity1";
             this.lblQuantity1.Size = new System.Drawing.Size(16, 13);
             this.lblQuantity1.TabIndex = 14;
@@ -270,7 +273,7 @@
             // 
             this.lblPrice1.AutoSize = true;
             this.lblPrice1.BackColor = System.Drawing.Color.Goldenrod;
-            this.lblPrice1.Location = new System.Drawing.Point(262, 87);
+            this.lblPrice1.Location = new System.Drawing.Point(262, 84);
             this.lblPrice1.Name = "lblPrice1";
             this.lblPrice1.Size = new System.Drawing.Size(16, 13);
             this.lblPrice1.TabIndex = 15;
@@ -292,7 +295,7 @@
             // 
             this.lblBypass1.AutoSize = true;
             this.lblBypass1.BackColor = System.Drawing.Color.DarkSeaGreen;
-            this.lblBypass1.Location = new System.Drawing.Point(262, 49);
+            this.lblBypass1.Location = new System.Drawing.Point(262, 28);
             this.lblBypass1.Name = "lblBypass1";
             this.lblBypass1.Size = new System.Drawing.Size(16, 13);
             this.lblBypass1.TabIndex = 18;
@@ -303,7 +306,7 @@
             // 
             this.lblBypass2.AutoSize = true;
             this.lblBypass2.BackColor = System.Drawing.SystemColors.Control;
-            this.lblBypass2.Location = new System.Drawing.Point(277, 49);
+            this.lblBypass2.Location = new System.Drawing.Point(277, 28);
             this.lblBypass2.Name = "lblBypass2";
             this.lblBypass2.Size = new System.Drawing.Size(62, 13);
             this.lblBypass2.TabIndex = 17;
@@ -314,7 +317,7 @@
             // 
             this.lblStockCode1.AutoSize = true;
             this.lblStockCode1.BackColor = System.Drawing.Color.Red;
-            this.lblStockCode1.Location = new System.Drawing.Point(262, 30);
+            this.lblStockCode1.Location = new System.Drawing.Point(262, 9);
             this.lblStockCode1.Name = "lblStockCode1";
             this.lblStockCode1.Size = new System.Drawing.Size(16, 13);
             this.lblStockCode1.TabIndex = 20;
@@ -325,18 +328,54 @@
             // 
             this.lblStockCode2.AutoSize = true;
             this.lblStockCode2.BackColor = System.Drawing.SystemColors.Control;
-            this.lblStockCode2.Location = new System.Drawing.Point(277, 30);
+            this.lblStockCode2.Location = new System.Drawing.Point(277, 9);
             this.lblStockCode2.Name = "lblStockCode2";
             this.lblStockCode2.Size = new System.Drawing.Size(89, 13);
             this.lblStockCode2.TabIndex = 19;
             this.lblStockCode2.Text = "= No Stock Code";
             this.lblStockCode2.Visible = false;
             // 
+            // lblInvalid1
+            // 
+            this.lblInvalid1.AutoSize = true;
+            this.lblInvalid1.BackColor = System.Drawing.Color.LightPink;
+            this.lblInvalid1.Location = new System.Drawing.Point(262, 66);
+            this.lblInvalid1.Name = "lblInvalid1";
+            this.lblInvalid1.Size = new System.Drawing.Size(16, 13);
+            this.lblInvalid1.TabIndex = 22;
+            this.lblInvalid1.Text = "   ";
+            this.lblInvalid1.Visible = false;
+            // 
+            // lblInvalid2
+            // 
+            this.lblInvalid2.AutoSize = true;
+            this.lblInvalid2.BackColor = System.Drawing.SystemColors.Control;
+            this.lblInvalid2.Location = new System.Drawing.Point(277, 64);
+            this.lblInvalid2.Name = "lblInvalid2";
+            this.lblInvalid2.Size = new System.Drawing.Size(106, 13);
+            this.lblInvalid2.TabIndex = 21;
+            this.lblInvalid2.Text = "= Invalid Stock Code";
+            this.lblInvalid2.Visible = false;
+            // 
+            // btnDeleteStockCodes
+            // 
+            this.btnDeleteStockCodes.Location = new System.Drawing.Point(372, 4);
+            this.btnDeleteStockCodes.Name = "btnDeleteStockCodes";
+            this.btnDeleteStockCodes.Size = new System.Drawing.Size(218, 23);
+            this.btnDeleteStockCodes.TabIndex = 23;
+            this.btnDeleteStockCodes.Text = "DELETE ROWS WITH NO STOCK CODE";
+            this.btnDeleteStockCodes.UseVisualStyleBackColor = true;
+            this.btnDeleteStockCodes.Visible = false;
+            this.btnDeleteStockCodes.Click += new System.EventHandler(this.btnDeleteStockCodes_Click);
+            // 
             // frmMainMenu
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(919, 526);
+            this.Controls.Add(this.btnDeleteStockCodes);
+            this.Controls.Add(this.lblInvalid1);
+            this.Controls.Add(this.lblInvalid2);
             this.Controls.Add(this.lblStockCode1);
             this.Controls.Add(this.lblStockCode2);
             this.Controls.Add(this.lblBypass1);
@@ -397,6 +436,9 @@
         private System.Windows.Forms.Label lblBypass2;
         private System.Windows.Forms.Label lblStockCode1;
         private System.Windows.Forms.Label lblStockCode2;
+        private System.Windows.Forms.Label lblInvalid1;
+        private System.Windows.Forms.Label lblInvalid2;
+        private System.Windows.Forms.Button btnDeleteStockCodes;
     }
 }
 

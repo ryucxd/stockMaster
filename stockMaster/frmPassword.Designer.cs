@@ -86,6 +86,7 @@
             this.Name = "frmPassword";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Admin";
+            this.Load += new System.EventHandler(this.frmPassword_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
