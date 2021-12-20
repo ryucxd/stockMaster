@@ -47,7 +47,7 @@
             this.dataGridView1.Location = new System.Drawing.Point(12, 12);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowHeadersVisible = false;
-            this.dataGridView1.Size = new System.Drawing.Size(784, 43);
+            this.dataGridView1.Size = new System.Drawing.Size(980, 43);
             this.dataGridView1.TabIndex = 0;
             // 
             // btnAmend
@@ -102,7 +102,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(808, 143);
+            this.ClientSize = new System.Drawing.Size(1004, 143);
             this.ControlBox = false;
             this.Controls.Add(this.txtQuantity);
             this.Controls.Add(this.btnBypass);

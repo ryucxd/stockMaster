@@ -46,6 +46,12 @@
     <Compile Include="frmAmendRow.Designer.cs">
       <DependentUpon>frmAmendRow.cs</DependentUpon>
     </Compile>
+    <Compile Include="frmExport.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmExport.Designer.cs">
+      <DependentUpon>frmExport.cs</DependentUpon>
+    </Compile>
     <Compile Include="frmMainMenu.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -63,6 +69,9 @@
     <Compile Include="CONNECT.cs" />
     <EmbeddedResource Include="frmAmendRow.resx">
       <DependentUpon>frmAmendRow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="frmExport.resx">
+      <DependentUpon>frmExport.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmMainMenu.resx">
       <DependentUpon>frmMainMenu.cs</DependentUpon>

@@ -259,6 +259,7 @@ namespace stockMaster
             lblStockCode1.Visible = false;
             lblStockCode2.Visible = false;
             btnDeleteStockCodes.Visible = false;
+            btnInvalidStockCode.Visible = false;
 
             //here we go through all the rows and check if the price or quantity is over a certain limit OR 
             //stock code/quantity are null // blank row etc
@@ -386,6 +387,7 @@ namespace stockMaster
                     message = message + Environment.NewLine + invalidStockCode.ToString() + " rows with an invalid stock code - these must be fixed in the CSV/data grid view.";
                     lblInvalid1.Visible = true;
                     lblInvalid2.Visible = true;
+                    btnInvalidStockCode.Visible = true;
                 }
 
                 prog.Value = prog.Maximum;
@@ -565,7 +567,7 @@ namespace stockMaster
                             command.Parameters.Add("@datarow_stock", SqlDbType.VarChar).Value = dataGridView1.Rows[i].Cells[0].ToString();
                             command.Parameters.Add("@datarow_location", SqlDbType.VarChar).Value = dataGridView1.Rows[i].Cells[4].ToString();
                             command.Parameters.Add("@if_number", SqlDbType.VarChar).Value = '2'; //traditional full
-                            //command.ExecuteNonQuery();  //no need to test this cause its old code but this does affect live stock so dont run it
+                            command.ExecuteNonQuery();  //no need to test this cause its old code but this does affect live stock so dont run it
                         }
                         prog.Value++;
                     }
@@ -597,7 +599,7 @@ namespace stockMaster
                             command.Parameters.Add("@datarow_stock", SqlDbType.VarChar).Value = dataGridView1.Rows[i].Cells[0].ToString();
                             command.Parameters.Add("@datarow_location", SqlDbType.VarChar).Value = dataGridView1.Rows[i].Cells[4].ToString();
                             command.Parameters.Add("@if_number", SqlDbType.VarChar).Value = '1'; //slimline full
-                            //command.ExecuteNonQuery();  //no need to test this cause its old code but this does affect live stock so dont run it
+                            command.ExecuteNonQuery();  //no need to test this cause its old code but this does affect live stock so dont run it
                         }
                         prog.Value++;
                     }
@@ -645,7 +647,7 @@ namespace stockMaster
                             command.Parameters.Add("@datarow_stock", SqlDbType.VarChar).Value = dataGridView1.Rows[i].Cells[0].Value.ToString();
                             command.Parameters.Add("@datarow_location", SqlDbType.VarChar).Value = dataGridView1.Rows[i].Cells[4].Value.ToString();
                             command.Parameters.Add("@if_number", SqlDbType.VarChar).Value = '4'; //traditional partial
-                            //command.ExecuteNonQuery();  //no need to test this cause its old code but this does affect live stock so dont run it
+                            command.ExecuteNonQuery();  //no need to test this cause its old code but this does affect live stock so dont run it
                         }
                         prog.Value++;
                     }
@@ -680,7 +682,7 @@ namespace stockMaster
                             command.Parameters.Add("@datarow_stock", SqlDbType.VarChar).Value = dataGridView1.Rows[i].Cells[0].Value.ToString();
                             command.Parameters.Add("@datarow_location", SqlDbType.VarChar).Value = dataGridView1.Rows[i].Cells[4].Value.ToString();
                             command.Parameters.Add("@if_number", SqlDbType.VarChar).Value = '3'; //slimline partial
-                            //command.ExecuteNonQuery();  //no need to test this cause its old code but this does affect live stock so dont run it
+                            command.ExecuteNonQuery();  //no need to test this cause its old code but this does affect live stock so dont run it
                         }
                         prog.Value++;
                     }
@@ -695,7 +697,7 @@ namespace stockMaster
             //only adds to the current value (does not wipe anything to 0)
             prog.Value = 0;
             prog.Maximum = dataGridView1.Rows.Count;
-            using (SqlConnection conn = new SqlConnection(CONNECT.ConnectionString))
+            using (SqlConnection conn = new SqlConnection(CONNECT.ConnectionString))  //†
             {
                 conn.Open();
                 if (stock_take_location == 1) //traditional
@@ -718,7 +720,7 @@ namespace stockMaster
                             command.Parameters.Add("@datarow_stock", SqlDbType.VarChar).Value = dataGridView1.Rows[i].Cells[0].Value.ToString();
                             command.Parameters.Add("@datarow_location", SqlDbType.VarChar).Value = dataGridView1.Rows[i].Cells[4].Value.ToString();
                             command.Parameters.Add("@if_number", SqlDbType.VarChar).Value = '6'; //traditional incremental
-                            //command.ExecuteNonQuery();  //no need to test this cause its old code but this does affect live stock so dont run it
+                            command.ExecuteNonQuery();  //no need to test this cause its old code but this does affect live stock so dont run it
                         }
                         prog.Value++;
                     }
@@ -744,7 +746,7 @@ namespace stockMaster
                             command.Parameters.Add("@datarow_stock", SqlDbType.VarChar).Value = dataGridView1.Rows[i].Cells[0].Value.ToString();
                             command.Parameters.Add("@datarow_location", SqlDbType.VarChar).Value = dataGridView1.Rows[i].Cells[4].Value.ToString();
                             command.Parameters.Add("@if_number", SqlDbType.VarChar).Value = '5'; //traditional incremental
-                            //command.ExecuteNonQuery();  //no need to test this cause its old code but this does affect live stock so dont run it
+                            command.ExecuteNonQuery();  //no need to test this cause its old code but this does affect live stock so dont run it
                         }
                         prog.Value++;
                     }
@@ -778,6 +780,105 @@ namespace stockMaster
                 prog.Value = prog.Maximum;
                 MessageBox.Show(removed.ToString() + " rows with no stock code have been removed!");
                 btnCheckCSV.PerformClick();
+            }
+        }
+
+        private void btnInvalidStockCode_Click(object sender, EventArgs e)
+        {
+            DialogResult result = MessageBox.Show("This will remove all rows with a pink back colour. Are you sure you want to do this?", "Remove no stock code entries", MessageBoxButtons.YesNo);
+            int count = dataGridView1.Rows.Count;
+            int removed = 0;
+            prog.Maximum = count;
+            prog.Value = 0;
+            if (result == DialogResult.Yes)
+            {
+                for (int i = 0; i < count; i++)
+                {
+
+                    if (dataGridView1.Rows[i].DefaultCellStyle.BackColor == Color.LightPink)
+                    {
+                        DataGridViewRow delete = dataGridView1.Rows[i];
+                        dataGridView1.Rows.Remove(delete);
+                        removed++;
+                        i--;
+                        count--;
+                        prog.Value++;
+                    }
+                }
+                prog.Value = prog.Maximum;
+                MessageBox.Show(removed.ToString() + " rows with an invalid stock code have been removed!");
+                btnCheckCSV.PerformClick();
+            }
+        }
+
+        private void btnExport_Click(object sender, EventArgs e)
+        {
+            //loop through each row/column of the gdv into csv format
+            var dt = new DataTable();
+            dt.Columns.AddRange(new[] { new DataColumn("Stock Code;Item Name;QTY;UoM;Location;Time Stamp") });
+            string csvLine = "";
+            DialogResult result = MessageBox.Show("Export only coloured rows into csv format?", " ", MessageBoxButtons.YesNo);
+            if (result == DialogResult.No) //colour . empty
+            {
+                for (int row = 0; row < dataGridView1.Rows.Count; row++)
+                {
+
+                    csvLine = ""; //wipe it
+                    for (int col = 0; col < dataGridView1.Columns.Count; col++)
+                    {
+                        csvLine = csvLine + dataGridView1.Rows[row].Cells[col].Value.ToString() + ";";
+                    }
+                    csvLine = csvLine.Remove(csvLine.Length - 1, 1);
+                    DataRow dr = dt.NewRow();
+                    dr[0] = csvLine;
+                    dt.Rows.Add(dr);
+
+                } //for loop end
+                frmExport frm = new frmExport(dt);
+                frm.ShowDialog();
+            }
+            else
+            {
+                for (int row = 0; row < dataGridView1.Rows.Count; row++)
+                {
+                    if (dataGridView1.Rows[row].DefaultCellStyle.BackColor != Color.Empty)
+                    {
+                        csvLine = ""; //wipe it
+                        for (int col = 0; col < dataGridView1.Columns.Count; col++)
+                        {
+                            csvLine = csvLine + dataGridView1.Rows[row].Cells[col].Value.ToString() + ";";
+                        }
+                        csvLine = csvLine.Remove(csvLine.Length - 1, 1);
+                        DataRow dr = dt.NewRow();
+                        dr[0] = csvLine;
+                        dt.Rows.Add(dr);
+                    }
+                } //for loop end
+                frmExport frm = new frmExport(dt);
+                frm.ShowDialog();
+            }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            using (SqlConnection conn = new SqlConnection(CONNECT.ConnectionString))
+            {
+                conn.Open();
+                for (int i = 0; i < dataGridView1.Rows.Count; i++) //go through each row and update location ? 
+                {
+                    using (var command = new SqlCommand("usp_stock_master_location", conn) //new name but is exactly same as before, nothing rewritten here
+                    {
+                        CommandType = System.Data.CommandType.StoredProcedure
+                    })
+                    {
+                        command.Parameters.Add("@datarow_stock", SqlDbType.VarChar).Value = dataGridView1.Rows[i].Cells[0].Value.ToString();
+                        command.Parameters.Add("@datarow_location", SqlDbType.VarChar).Value = dataGridView1.Rows[i].Cells[4].Value.ToString();
+                        command.Parameters.Add("@if_number", SqlDbType.VarChar).Value = '4'; //traditional partial
+                        command.ExecuteNonQuery();  //no need to test this cause its old code but this does affect live stock so dont run it
+                        
+                    }
+                }
+                conn.Close();
             }
         }
     }
