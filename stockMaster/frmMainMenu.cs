@@ -576,7 +576,7 @@ namespace stockMaster
                 else //slimline
                 {
                     //wipe ALL of the slimline stock
-                    sql = " update [order_database_booking_in_test].dbo.[stock] set amount_in_stock = 0, [location] = '' where slimline_stock_yn = -1";
+                    sql = " update [order_database].dbo.[stock] set amount_in_stock = 0, [location] = '' where slimline_stock_yn = -1";
                     using (SqlCommand cmd = new SqlCommand(sql, conn))
                         cmd.ExecuteNonQuery();
                     prog.Value = 0;
