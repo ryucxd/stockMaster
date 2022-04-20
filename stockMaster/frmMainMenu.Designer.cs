@@ -58,7 +58,6 @@
             this.btnDeleteStockCodes = new System.Windows.Forms.Button();
             this.btnInvalidStockCode = new System.Windows.Forms.Button();
             this.btnExport = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
             this.grpArea.SuspendLayout();
             this.grpType.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
@@ -392,23 +391,11 @@
             this.btnExport.UseVisualStyleBackColor = true;
             this.btnExport.Click += new System.EventHandler(this.btnExport_Click);
             // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(832, 12);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 26;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Visible = false;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
             // frmMainMenu
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(919, 526);
-            this.Controls.Add(this.button1);
             this.Controls.Add(this.btnExport);
             this.Controls.Add(this.btnInvalidStockCode);
             this.Controls.Add(this.btnDeleteStockCodes);
@@ -479,7 +466,6 @@
         private System.Windows.Forms.Button btnDeleteStockCodes;
         private System.Windows.Forms.Button btnInvalidStockCode;
         private System.Windows.Forms.Button btnExport;
-        private System.Windows.Forms.Button button1;
     }
 }
 

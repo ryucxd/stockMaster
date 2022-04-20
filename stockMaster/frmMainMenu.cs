@@ -564,8 +564,8 @@ namespace stockMaster
                             CommandType = System.Data.CommandType.StoredProcedure
                         })
                         {
-                            command.Parameters.Add("@datarow_stock", SqlDbType.VarChar).Value = dataGridView1.Rows[i].Cells[0].ToString();
-                            command.Parameters.Add("@datarow_location", SqlDbType.VarChar).Value = dataGridView1.Rows[i].Cells[4].ToString();
+                            command.Parameters.Add("@datarow_stock", SqlDbType.VarChar).Value = dataGridView1.Rows[i].Cells[0].Value.ToString();
+                            command.Parameters.Add("@datarow_location", SqlDbType.VarChar).Value = dataGridView1.Rows[i].Cells[4].Value.ToString();
                             command.Parameters.Add("@if_number", SqlDbType.VarChar).Value = '2'; //traditional full
                             command.ExecuteNonQuery();  //no need to test this cause its old code but this does affect live stock so dont run it
                         }
@@ -596,8 +596,8 @@ namespace stockMaster
                             CommandType = System.Data.CommandType.StoredProcedure
                         })
                         {
-                            command.Parameters.Add("@datarow_stock", SqlDbType.VarChar).Value = dataGridView1.Rows[i].Cells[0].ToString();
-                            command.Parameters.Add("@datarow_location", SqlDbType.VarChar).Value = dataGridView1.Rows[i].Cells[4].ToString();
+                            command.Parameters.Add("@datarow_stock", SqlDbType.VarChar).Value = dataGridView1.Rows[i].Cells[0].Value.ToString();
+                            command.Parameters.Add("@datarow_location", SqlDbType.VarChar).Value = dataGridView1.Rows[i].Cells[4].Value.ToString();
                             command.Parameters.Add("@if_number", SqlDbType.VarChar).Value = '1'; //slimline full
                             command.ExecuteNonQuery();  //no need to test this cause its old code but this does affect live stock so dont run it
                         }
@@ -859,27 +859,7 @@ namespace stockMaster
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-            using (SqlConnection conn = new SqlConnection(CONNECT.ConnectionString))
-            {
-                conn.Open();
-                for (int i = 0; i < dataGridView1.Rows.Count; i++) //go through each row and update location ? 
-                {
-                    using (var command = new SqlCommand("usp_stock_master_location", conn) //new name but is exactly same as before, nothing rewritten here
-                    {
-                        CommandType = System.Data.CommandType.StoredProcedure
-                    })
-                    {
-                        command.Parameters.Add("@datarow_stock", SqlDbType.VarChar).Value = dataGridView1.Rows[i].Cells[0].Value.ToString();
-                        command.Parameters.Add("@datarow_location", SqlDbType.VarChar).Value = dataGridView1.Rows[i].Cells[4].Value.ToString();
-                        command.Parameters.Add("@if_number", SqlDbType.VarChar).Value = '4'; //traditional partial
-                        command.ExecuteNonQuery();  //no need to test this cause its old code but this does affect live stock so dont run it
-                        
-                    }
-                }
-                conn.Close();
-            }
-        }
+
     }
 }
+
