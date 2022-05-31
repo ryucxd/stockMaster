@@ -58,6 +58,8 @@
             this.btnDeleteStockCodes = new System.Windows.Forms.Button();
             this.btnInvalidStockCode = new System.Windows.Forms.Button();
             this.btnExport = new System.Windows.Forms.Button();
+            this.btnAttachPriceList = new System.Windows.Forms.Button();
+            this.btnUpdatePrices = new System.Windows.Forms.Button();
             this.grpArea.SuspendLayout();
             this.grpType.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
@@ -166,7 +168,6 @@
             // 
             // btnAttachCSV
             // 
-            this.btnAttachCSV.Enabled = false;
             this.btnAttachCSV.Location = new System.Drawing.Point(262, 125);
             this.btnAttachCSV.Name = "btnAttachCSV";
             this.btnAttachCSV.Size = new System.Drawing.Size(104, 23);
@@ -391,11 +392,34 @@
             this.btnExport.UseVisualStyleBackColor = true;
             this.btnExport.Click += new System.EventHandler(this.btnExport_Click);
             // 
+            // btnAttachPriceList
+            // 
+            this.btnAttachPriceList.Location = new System.Drawing.Point(262, 96);
+            this.btnAttachPriceList.Name = "btnAttachPriceList";
+            this.btnAttachPriceList.Size = new System.Drawing.Size(104, 23);
+            this.btnAttachPriceList.TabIndex = 26;
+            this.btnAttachPriceList.Text = "Attach Pricelist";
+            this.btnAttachPriceList.UseVisualStyleBackColor = true;
+            this.btnAttachPriceList.Click += new System.EventHandler(this.btnAttachPriceList_Click);
+            // 
+            // btnUpdatePrices
+            // 
+            this.btnUpdatePrices.Enabled = false;
+            this.btnUpdatePrices.Location = new System.Drawing.Point(702, 93);
+            this.btnUpdatePrices.Name = "btnUpdatePrices";
+            this.btnUpdatePrices.Size = new System.Drawing.Size(104, 23);
+            this.btnUpdatePrices.TabIndex = 27;
+            this.btnUpdatePrices.Text = "Update Prices";
+            this.btnUpdatePrices.UseVisualStyleBackColor = true;
+            this.btnUpdatePrices.Click += new System.EventHandler(this.btnUpdatePrices_Click);
+            // 
             // frmMainMenu
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(919, 526);
+            this.Controls.Add(this.btnUpdatePrices);
+            this.Controls.Add(this.btnAttachPriceList);
             this.Controls.Add(this.btnExport);
             this.Controls.Add(this.btnInvalidStockCode);
             this.Controls.Add(this.btnDeleteStockCodes);
@@ -466,6 +490,8 @@
         private System.Windows.Forms.Button btnDeleteStockCodes;
         private System.Windows.Forms.Button btnInvalidStockCode;
         private System.Windows.Forms.Button btnExport;
+        private System.Windows.Forms.Button btnAttachPriceList;
+        private System.Windows.Forms.Button btnUpdatePrices;
     }
 }
 

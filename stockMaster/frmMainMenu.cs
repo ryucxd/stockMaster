@@ -1,11 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
 using System.Data.SqlClient;
+using Excel = Microsoft.Office.Interop.Excel;
+using System.Linq;
+using System.Diagnostics;
+using System.Data.OleDb;
 
 namespace stockMaster
 {
@@ -66,6 +67,9 @@ namespace stockMaster
 
         private void btnAttachCSV_Click(object sender, EventArgs e)
         {
+            btnUpdatePrices.Enabled = false;
+            btnAttachPriceList.Enabled = false;
+            btnAttachPriceList.Visible = false;
             btnSnapShot.Enabled = false;
             btnBypass.Enabled = false;
             //if csv has already been entered messagebox to inform the new one will be appended 
@@ -94,8 +98,23 @@ namespace stockMaster
                     { }
                     return;
                 }
+            
             }
             dataGridView1.ClearSelection();
+        }
+
+        private void insertPriceList(string file)
+        {
+            String constr = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" + file +";Extended Properties='Excel 12.0 XML;HDR=YES;';";
+
+            OleDbConnection con = new OleDbConnection(constr);
+            OleDbCommand oconn = new OleDbCommand("Select * From [Sheet1$]", con);
+            con.Open();
+
+            OleDbDataAdapter sda = new OleDbDataAdapter(oconn);
+            DataTable data = new DataTable();
+            sda.Fill(data);
+            dataGridView1.DataSource = data;
         }
 
         private void insertCSV(string file)
@@ -859,7 +878,58 @@ namespace stockMaster
             }
         }
 
+        private void btnAttachPriceList_Click(object sender, EventArgs e)
+        {
+            btnAttachCSV.Enabled = false;
+            btnSnapShot.Enabled = false;
+            btnBypass.Enabled = false;
+            //if csv has already been entered messagebox to inform the new one will be appended 
+            string csvPath = "";
+            OpenFileDialog openFile = new OpenFileDialog();
+            openFile.FilterIndex = 1;
+            openFile.RestoreDirectory = true;
 
+            if (openFile.ShowDialog() == DialogResult.OK)
+            {
+                //try
+                //{
+                    insertPriceList(openFile.FileName);
+                btnUpdatePrices.Enabled = true;
+                //}
+                //catch
+                //{
+                //}
+
+                //    return;
+                }
+            }
+
+        private void btnUpdatePrices_Click(object sender, EventArgs e)
+        {
+            // go through each datagrid row and update the prices for each stock code
+
+            foreach (DataGridViewRow row in dataGridView1.Rows)
+            {
+                //check if stock code is null
+                if (String.IsNullOrEmpty(row.Cells[0].Value.ToString()))
+                    continue;
+                //new price
+                if (String.IsNullOrEmpty(row.Cells[6].Value.ToString()))
+                    continue;
+
+                //update the price 
+                string sql = "UPDATE dbo.stock set cost_price = " + row.Cells[6].Value.ToString() + " WHERE stock_code = '" + row.Cells[0].Value.ToString() + "' ";
+                using (SqlConnection conn = new SqlConnection(CONNECT.ConnectionString))
+                {
+                    conn.Open();
+                    using (SqlCommand cmd = new SqlCommand(sql, conn))
+                    {
+                        cmd.ExecuteNonQuery();
+                    }
+                        conn.Close();
+                }
+            }    
+        }
     }
-}
+    }
 
