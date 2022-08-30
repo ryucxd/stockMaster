@@ -914,11 +914,11 @@ namespace stockMaster
                 if (String.IsNullOrEmpty(row.Cells[0].Value.ToString()))
                     continue;
                 //new price
-                if (String.IsNullOrEmpty(row.Cells[6].Value.ToString()))
+                if (String.IsNullOrEmpty(row.Cells[3].Value.ToString()))
                     continue;
 
                 //update the price 
-                string sql = "UPDATE dbo.stock set cost_price = " + row.Cells[6].Value.ToString() + " WHERE stock_code = '" + row.Cells[0].Value.ToString() + "' ";
+                string sql = "UPDATE dbo.stock set cost_price = " + row.Cells[3].Value.ToString() + " WHERE stock_code = '" + row.Cells[0].Value.ToString() + "' ";
                 using (SqlConnection conn = new SqlConnection(CONNECT.ConnectionString))
                 {
                     conn.Open();

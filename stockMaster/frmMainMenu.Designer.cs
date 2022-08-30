@@ -168,6 +168,7 @@
             // 
             // btnAttachCSV
             // 
+            this.btnAttachCSV.Enabled = false;
             this.btnAttachCSV.Location = new System.Drawing.Point(262, 125);
             this.btnAttachCSV.Name = "btnAttachCSV";
             this.btnAttachCSV.Size = new System.Drawing.Size(104, 23);
@@ -362,7 +363,7 @@
             // 
             // btnDeleteStockCodes
             // 
-            this.btnDeleteStockCodes.Location = new System.Drawing.Point(372, 4);
+            this.btnDeleteStockCodes.Location = new System.Drawing.Point(389, 4);
             this.btnDeleteStockCodes.Name = "btnDeleteStockCodes";
             this.btnDeleteStockCodes.Size = new System.Drawing.Size(218, 23);
             this.btnDeleteStockCodes.TabIndex = 23;
